@@ -1,0 +1,182 @@
+name: Build Windows wheels (cu132 experimental)
+
+# Experimental workflow for torch 2.12 + CUDA 13.2 on Windows.
+# Currently broken — pulsar fails to link under CUDA 13 (hidden symbol
+# template instantiations). Kept around so iterating on a fix doesn't
+# disturb the stable cu129 builds.
+#
+# Publish defaults to false because the build is expected to fail.
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish index to gh-pages after build"
+        type: boolean
+        default: false
+
+jobs:
+  load-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      builds: ${{ steps.load.outputs.builds }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: load
+        shell: bash
+        run: |
+          python3 -m pip install pyyaml --quiet
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, yaml
+          m = yaml.safe_load(open("matrix-windows-cu132.yml"))
+          print("builds=" + json.dumps(m["builds"]))
+          PY
+
+  build:
+    needs: load-matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        build: ${{ fromJson(needs.load-matrix.outputs.builds) }}
+    runs-on: ${{ matrix.build.os }}
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.build.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.build.python }}
+
+      - name: Checkout pytorch3d ${{ matrix.build.pytorch3d }}
+        uses: actions/checkout@v4
+        with:
+          repository: facebookresearch/pytorch3d
+          ref: v${{ matrix.build.pytorch3d }}
+          path: pytorch3d-src
+
+      - name: Install CUDA Toolkit ${{ matrix.build.cuda }}
+        if: matrix.build.cuda != 'cpu'
+        uses: Jimver/cuda-toolkit@v0.2.35
+        with:
+          cuda: ${{ matrix.build.cuda }}.0
+          method: network
+
+      - name: Show CUDA env
+        if: matrix.build.cuda != 'cpu'
+        shell: cmd
+        run: |
+          echo CUDA_PATH=%CUDA_PATH%
+          where nvcc
+          nvcc --version
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+          toolset: ${{ matrix.build.msvc_toolset }}
+
+      - name: Show compiler
+        shell: cmd
+        run: |
+          where cl
+          cl
+
+      - name: Build wheel
+        shell: cmd
+        env:
+          DISTUTILS_USE_SDK: "1"
+        run: |
+          python -m pip install --upgrade pip pyyaml
+          python scripts\build_one.py ^
+            --python "${{ matrix.build.python }}" ^
+            --torch "${{ matrix.build.torch }}" ^
+            --torchvision "${{ matrix.build.torchvision }}" ^
+            --cuda "${{ matrix.build.cuda }}" ^
+            --pytorch3d "${{ matrix.build.pytorch3d }}" ^
+            --cuda-arch-list "${{ matrix.build.cuda_arch_list }}" ^
+            --src pytorch3d-src ^
+            --out wheels
+
+      - name: Smoke test (import)
+        shell: cmd
+        run: |
+          for %%f in (wheels\pytorch3d-*.whl) do python -m pip install "%%f"
+          python -c "import pytorch3d; print('pytorch3d', pytorch3d.__version__)"
+          python -c "import pytorch3d.ops; print('ops loaded')"
+
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-${{ matrix.build.name }}
+          path: wheels/*.whl
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    needs: build
+    if: ${{ inputs.publish }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: gh-pages-deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download this run's wheel artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: wheel-*
+          merge-multiple: true
+
+      - name: Fetch existing wheels from gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: existing-pages
+        continue-on-error: true
+
+      - name: Merge new + existing wheels
+        run: |
+          mkdir -p wheels
+          find artifacts -name '*.whl' -exec cp -f {} wheels/ \;
+          if [ -d existing-pages/simple/pytorch3d ]; then
+            for whl in existing-pages/simple/pytorch3d/*.whl; do
+              [ -e "$whl" ] || continue
+              name=$(basename "$whl")
+              if [ ! -f "wheels/$name" ]; then
+                cp "$whl" "wheels/$name"
+              fi
+            done
+          fi
+          ls -la wheels/
+
+      - name: Build PEP 503 index
+        run: |
+          python3 scripts/make_index.py --wheels wheels --out site/simple
+
+      - name: Add landing page
+        run: |
+          mkdir -p site
+          cat > site/index.html <<'EOF'
+          <!doctype html>
+          <html><head><meta charset="utf-8">
+          <title>pytorch3d-wheels</title></head>
+          <body>
+            <h1>pytorch3d-wheels</h1>
+            <p>Prebuilt PyTorch3D wheels for Windows, Linux, and macOS arm64.
+               This is a PEP 503 simple index — see <a href="simple/">simple/</a>.</p>
+            <p>Install with:
+              <pre>pip install pytorch3d --extra-index-url https://ImageMindAnalytics.github.io/pytorch3d-wheels/simple/</pre>
+            </p>
+          </body></html>
+          EOF
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: site

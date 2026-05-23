@@ -1,0 +1,61 @@
+# EXPERIMENTAL: Windows + CUDA 13.2 builds.
+#
+# Currently broken: pulsar's template instantiations under CUDA 13's
+# compilation model leave `<true>`/DYN variants declared with hidden
+# visibility but not defined. The `_C.so` link step fails with
+# "hidden symbol ... isn't defined" errors. Same failure mode as
+# CUDA 13 on Linux.
+#
+# Lives in a separate file so iterating on this doesn't disturb the
+# stable cu129 wheels in matrix-windows.yml. The matching workflow
+# (build-windows-cu132.yml) defaults to publish=false so failed runs
+# don't touch gh-pages.
+#
+# Resolution path: wait for pytorch3d upstream to fix pulsar for
+# CUDA 13, OR add a setup.py patch step that disables pulsar entirely
+# and ship a degraded wheel.
+
+builds:
+  - name: py310-torch2120-cu132-win
+    python: "3.10"
+    torch: "2.12.0"
+    torchvision: "0.27.0"
+    cuda: "13.2"
+    pytorch3d: "0.7.9"
+    os: windows-2022
+    arch: win_amd64
+    msvc_toolset: ""
+    cuda_arch_list: "7.5;8.0;8.6;8.9;9.0"
+
+  - name: py311-torch2120-cu132-win
+    python: "3.11"
+    torch: "2.12.0"
+    torchvision: "0.27.0"
+    cuda: "13.2"
+    pytorch3d: "0.7.9"
+    os: windows-2022
+    arch: win_amd64
+    msvc_toolset: ""
+    cuda_arch_list: "7.5;8.0;8.6;8.9;9.0"
+
+  - name: py312-torch2120-cu132-win
+    python: "3.12"
+    torch: "2.12.0"
+    torchvision: "0.27.0"
+    cuda: "13.2"
+    pytorch3d: "0.7.9"
+    os: windows-2022
+    arch: win_amd64
+    msvc_toolset: ""
+    cuda_arch_list: "7.5;8.0;8.6;8.9;9.0"
+
+  - name: py313-torch2120-cu132-win
+    python: "3.13"
+    torch: "2.12.0"
+    torchvision: "0.27.0"
+    cuda: "13.2"
+    pytorch3d: "0.7.9"
+    os: windows-2022
+    arch: win_amd64
+    msvc_toolset: ""
+    cuda_arch_list: "7.5;8.0;8.6;8.9;9.0"

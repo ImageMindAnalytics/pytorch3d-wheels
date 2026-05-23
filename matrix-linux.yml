@@ -1,118 +1,150 @@
-# Build matrix for Linux pytorch3d wheels.
+# Build matrix for Linux pytorch3d wheels (stable).
 # Each row produces exactly one wheel.
+#
+# CUDA 13.x is NOT in this matrix — pulsar fails to link under CUDA 13
+# (same failure as Windows: `<true>`/DYN template instantiations are
+# declared hidden but not defined). Experimental cu13.x rows live in
+# matrix-linux-cu132.yml.
+#
+# torch 2.12 + cu128 is not built because upstream doesn't publish a
+# torch 2.12.0+cu128 wheel — only cu126 (and cu13.x).
 #
 # Linux wheels MUST be manylinux-compatible to be installable across
 # distros — so the build runs inside a manylinux container with CUDA
-# pre-installed (see .github/workflows/build-linux.yml). The `container`
-# field selects the image per row.
-#
-# Pairings (torch, CUDA) must match what download.pytorch.org/whl/<cu*>
-# publishes. Containers and CUDA version should match too — using the
-# pytorch/manylinux2_28-builder family because it tracks PyTorch's own
-# release CI.
-#
-# Fields:
-#   python         - cpython version
-#   torch          - exact torch version
-#   torchvision    - matching torchvision
-#   cuda           - CUDA version like "12.9"
-#   pytorch3d      - pytorch3d release tag (without leading v)
-#   os             - github runner host (the container is what actually
-#                    builds; the host just runs Docker)
-#   arch           - wheel platform tag (manylinux_2_28_x86_64)
-#   container      - Docker image used to build
-#   cuda_arch_list - TORCH_CUDA_ARCH_LIST
+# pre-installed (see .github/workflows/build-linux.yml).
 
 builds:
-  # --- torch 2.8.0 + CUDA 12.9 -------------------------------------------
-  - name: py310-torch280-cu129-linux
+  # --- torch 2.11.0 + CUDA 12.6 ------------------------------------------
+  - name: py310-torch2110-cu126-linux
     python: "3.10"
-    torch: "2.8.0"
-    torchvision: "0.23.0"
-    cuda: "12.9"
+    torch: "2.11.0"
+    torchvision: "0.26.0"
+    cuda: "12.6"
     pytorch3d: "0.7.9"
     os: ubuntu-22.04
     arch: manylinux_2_28_x86_64
-    container: "pytorch/manylinux2_28-builder:cuda12.9"
+    container: "pytorch/manylinux2_28-builder:cuda12.6"
     cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
 
-  - name: py311-torch280-cu129-linux
+  - name: py311-torch2110-cu126-linux
     python: "3.11"
-    torch: "2.8.0"
-    torchvision: "0.23.0"
-    cuda: "12.9"
+    torch: "2.11.0"
+    torchvision: "0.26.0"
+    cuda: "12.6"
     pytorch3d: "0.7.9"
     os: ubuntu-22.04
     arch: manylinux_2_28_x86_64
-    container: "pytorch/manylinux2_28-builder:cuda12.9"
+    container: "pytorch/manylinux2_28-builder:cuda12.6"
     cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
 
-  - name: py312-torch280-cu129-linux
+  - name: py312-torch2110-cu126-linux
     python: "3.12"
-    torch: "2.8.0"
-    torchvision: "0.23.0"
-    cuda: "12.9"
+    torch: "2.11.0"
+    torchvision: "0.26.0"
+    cuda: "12.6"
     pytorch3d: "0.7.9"
     os: ubuntu-22.04
     arch: manylinux_2_28_x86_64
-    container: "pytorch/manylinux2_28-builder:cuda12.9"
+    container: "pytorch/manylinux2_28-builder:cuda12.6"
     cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
 
-  - name: py313-torch280-cu129-linux
+  - name: py313-torch2110-cu126-linux
     python: "3.13"
-    torch: "2.8.0"
-    torchvision: "0.23.0"
-    cuda: "12.9"
+    torch: "2.11.0"
+    torchvision: "0.26.0"
+    cuda: "12.6"
     pytorch3d: "0.7.9"
     os: ubuntu-22.04
     arch: manylinux_2_28_x86_64
-    container: "pytorch/manylinux2_28-builder:cuda12.9"
+    container: "pytorch/manylinux2_28-builder:cuda12.6"
     cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
 
-  # --- torch (latest) + CUDA 13.2 ----------------------------------------
-  # PLACEHOLDER: torch 2.12.0 + cu132. Verify against
-  # download.pytorch.org/whl/cu132/ and that the matching
-  # pytorch/manylinux2_28-builder:cuda13.2 image actually exists.
-  - name: py310-torch2120-cu132-linux
+  # --- torch 2.11.0 + CUDA 12.8 ------------------------------------------
+  - name: py310-torch2110-cu128-linux
+    python: "3.10"
+    torch: "2.11.0"
+    torchvision: "0.26.0"
+    cuda: "12.8"
+    pytorch3d: "0.7.9"
+    os: ubuntu-22.04
+    arch: manylinux_2_28_x86_64
+    container: "pytorch/manylinux2_28-builder:cuda12.8"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
+
+  - name: py311-torch2110-cu128-linux
+    python: "3.11"
+    torch: "2.11.0"
+    torchvision: "0.26.0"
+    cuda: "12.8"
+    pytorch3d: "0.7.9"
+    os: ubuntu-22.04
+    arch: manylinux_2_28_x86_64
+    container: "pytorch/manylinux2_28-builder:cuda12.8"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
+
+  - name: py312-torch2110-cu128-linux
+    python: "3.12"
+    torch: "2.11.0"
+    torchvision: "0.26.0"
+    cuda: "12.8"
+    pytorch3d: "0.7.9"
+    os: ubuntu-22.04
+    arch: manylinux_2_28_x86_64
+    container: "pytorch/manylinux2_28-builder:cuda12.8"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
+
+  - name: py313-torch2110-cu128-linux
+    python: "3.13"
+    torch: "2.11.0"
+    torchvision: "0.26.0"
+    cuda: "12.8"
+    pytorch3d: "0.7.9"
+    os: ubuntu-22.04
+    arch: manylinux_2_28_x86_64
+    container: "pytorch/manylinux2_28-builder:cuda12.8"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
+
+  # --- torch 2.12.0 + CUDA 12.6 (no cu128 published for 2.12) -----------
+  - name: py310-torch2120-cu126-linux
     python: "3.10"
     torch: "2.12.0"
     torchvision: "0.27.0"
-    cuda: "13.2"
+    cuda: "12.6"
     pytorch3d: "0.7.9"
     os: ubuntu-22.04
     arch: manylinux_2_28_x86_64
-    container: "pytorch/manylinux2_28-builder:cuda13.2"
-    cuda_arch_list: "7.5;8.0;8.6;8.9;9.0"
+    container: "pytorch/manylinux2_28-builder:cuda12.6"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
 
-  - name: py311-torch2120-cu132-linux
+  - name: py311-torch2120-cu126-linux
     python: "3.11"
     torch: "2.12.0"
     torchvision: "0.27.0"
-    cuda: "13.2"
+    cuda: "12.6"
     pytorch3d: "0.7.9"
     os: ubuntu-22.04
     arch: manylinux_2_28_x86_64
-    container: "pytorch/manylinux2_28-builder:cuda13.2"
-    cuda_arch_list: "7.5;8.0;8.6;8.9;9.0"
+    container: "pytorch/manylinux2_28-builder:cuda12.6"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
 
-  - name: py312-torch2120-cu132-linux
+  - name: py312-torch2120-cu126-linux
     python: "3.12"
     torch: "2.12.0"
     torchvision: "0.27.0"
-    cuda: "13.2"
+    cuda: "12.6"
     pytorch3d: "0.7.9"
     os: ubuntu-22.04
     arch: manylinux_2_28_x86_64
-    container: "pytorch/manylinux2_28-builder:cuda13.2"
-    cuda_arch_list: "7.5;8.0;8.6;8.9;9.0"
+    container: "pytorch/manylinux2_28-builder:cuda12.6"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
 
-  - name: py313-torch2120-cu132-linux
+  - name: py313-torch2120-cu126-linux
     python: "3.13"
     torch: "2.12.0"
     torchvision: "0.27.0"
-    cuda: "13.2"
+    cuda: "12.6"
     pytorch3d: "0.7.9"
     os: ubuntu-22.04
     arch: manylinux_2_28_x86_64
-    container: "pytorch/manylinux2_28-builder:cuda13.2"
-    cuda_arch_list: "7.5;8.0;8.6;8.9;9.0"
+    container: "pytorch/manylinux2_28-builder:cuda12.6"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"

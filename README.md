@@ -25,11 +25,19 @@ If you have a specific torch + CUDA already installed and want pip to
 pick the matching wheel, pin to the local-version tag:
 
 ```bash
-# torch 2.8.0 + CUDA 12.9
-pip install "pytorch3d==0.7.9+pt280cu129" \
+# torch 2.11.0 + CUDA 12.6 (Windows / Linux)
+pip install "pytorch3d==0.7.9+pt2110cu126" \
   --extra-index-url https://ImageMindAnalytics.github.io/pytorch3d-wheels/simple/
 
-# torch 2.8.0 + CPU only (e.g. macOS arm64)
+# torch 2.11.0 + CUDA 12.8 (Windows / Linux)
+pip install "pytorch3d==0.7.9+pt2110cu128" \
+  --extra-index-url https://ImageMindAnalytics.github.io/pytorch3d-wheels/simple/
+
+# torch 2.12.0 + CUDA 12.6 (Windows / Linux)
+pip install "pytorch3d==0.7.9+pt2120cu126" \
+  --extra-index-url https://ImageMindAnalytics.github.io/pytorch3d-wheels/simple/
+
+# torch 2.8.0 + CPU only (macOS arm64)
 pip install "pytorch3d==0.7.9+pt280cpu" \
   --extra-index-url https://ImageMindAnalytics.github.io/pytorch3d-wheels/simple/
 ```
@@ -42,17 +50,33 @@ with dots stripped — `pt280cu129` for torch 2.8.0 + CUDA 12.9.
 This is the support contract. Combinations outside this list are not built;
 requests to add new combinations are evaluated based on CI cost and demand.
 
-| OS                 | Python                 | torch  | CUDA  |
-|--------------------|------------------------|--------|-------|
-| Windows x86_64     | 3.10, 3.11, 3.12, 3.13 | 2.8.0  | 12.9  |
-| Windows x86_64     | 3.10, 3.11, 3.12, 3.13 | 2.12.0 | 13.2  |
-| Linux x86_64 (\*)  | 3.10, 3.11, 3.12, 3.13 | 2.8.0  | 12.9  |
-| Linux x86_64 (\*)  | 3.10, 3.11, 3.12, 3.13 | 2.12.0 | 13.2  |
-| macOS arm64        | 3.10, 3.11, 3.12, 3.13 | 2.8.0  | CPU   |
+| OS                 | Python                 | torch  | CUDA       |
+|--------------------|------------------------|--------|------------|
+| Windows x86_64     | 3.10, 3.11, 3.12, 3.13 | 2.11.0 | 12.6, 12.8 |
+| Windows x86_64     | 3.10, 3.11, 3.12, 3.13 | 2.12.0 | 12.6       |
+| Linux x86_64 (\*)  | 3.10, 3.11, 3.12, 3.13 | 2.11.0 | 12.6, 12.8 |
+| Linux x86_64 (\*)  | 3.10, 3.11, 3.12, 3.13 | 2.12.0 | 12.6       |
+| macOS arm64        | 3.10, 3.11, 3.12, 3.13 | 2.8.0  | CPU        |
+
+torch 2.12 has no cu128 builds on PyPI's torch index — that's why
+torch 2.12 here is cu126-only.
 
 (\*) Linux wheels are `manylinux_2_28_x86_64`.
 
 PyTorch3D version: **0.7.9** (the latest upstream release).
+
+### CUDA 13.x — currently blocked upstream
+
+CUDA 13.x wheels (torch 2.12 + cu132) are **not shipped** while
+pytorch3d's pulsar backend has a linker incompatibility with CUDA 13's
+compilation model: pulsar's explicit template instantiations are
+declared with hidden visibility but never emitted as defined symbols,
+so `pytorch3d._C` fails to link. The matrix and workflows for cu132
+live in `matrix-{windows,linux}-cu132.yml` and
+`.github/workflows/build-{windows,linux}-cu132.yml` so we can pick
+them back up once a fix is available (either upstream, or by patching
+pytorch3d to disable pulsar). These workflows default to
+`publish: false`.
 
 ## Scope
 

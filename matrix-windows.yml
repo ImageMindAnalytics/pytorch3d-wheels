@@ -1,117 +1,151 @@
-# Build matrix for Windows pytorch3d wheels.
+# Build matrix for Windows pytorch3d wheels (stable).
 # Each row produces exactly one wheel.
 #
-# Pairings (torch, CUDA) MUST match what download.pytorch.org/whl/<cu*>
-# actually publishes — if pip can't install the requested
-# torch==X+cu<Y> at build time, the row fails immediately. When bumping
-# versions, check https://download.pytorch.org/whl/torch/ first.
+# CUDA 13.x is NOT in this matrix — pulsar fails to link with the
+# explicit template instantiations under CUDA 13's compilation model
+# (the `<true>`/DYN variants are declared hidden but never defined).
+# Experimental cu13.x rows live in matrix-windows-cu132.yml and are
+# expected to fail until pytorch3d ships a pulsar fix.
 #
-# Fields:
-#   python         - cpython version
-#   torch          - exact torch version to build against
-#   torchvision    - matching torchvision (must exist for the same torch+cu)
-#   cuda           - CUDA version like "12.9" (no "cpu" here; macOS handles that)
-#   pytorch3d      - pytorch3d release tag (without leading v)
-#   os             - github runner label
-#   arch           - wheel platform tag
-#   msvc_toolset   - "" for runner default (v143/VS2022). Match the toolset
-#                    PyTorch's own wheels were built with:
-#                      torch <= 2.5 -> "14.29"
-#                      torch >= 2.6 -> ""  (v143 needed for -std=c++20)
-#   cuda_arch_list - TORCH_CUDA_ARCH_LIST passed to nvcc.
-#                      CUDA 12.x: sm_70..sm_90
-#                      CUDA 13.x: sm_75..sm_90 (sm_60/sm_70 dropped)
+# torch 2.12 + cu128 is not built because upstream doesn't publish a
+# torch 2.12.0+cu128 wheel for Windows — only cu126 (and cu13.x).
+#
+# Pairings (torch, CUDA) MUST match what download.pytorch.org/whl/<cu*>
+# actually publishes. Check https://download.pytorch.org/whl/torch/ when
+# bumping versions.
 
 builds:
-  # --- torch 2.8.0 + CUDA 12.9 -------------------------------------------
-  - name: py310-torch280-cu129-win
+  # --- torch 2.11.0 + CUDA 12.6 ------------------------------------------
+  - name: py310-torch2110-cu126-win
     python: "3.10"
-    torch: "2.8.0"
-    torchvision: "0.23.0"
-    cuda: "12.9"
+    torch: "2.11.0"
+    torchvision: "0.26.0"
+    cuda: "12.6"
     pytorch3d: "0.7.9"
     os: windows-2022
     arch: win_amd64
     msvc_toolset: ""
     cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
 
-  - name: py311-torch280-cu129-win
+  - name: py311-torch2110-cu126-win
     python: "3.11"
-    torch: "2.8.0"
-    torchvision: "0.23.0"
-    cuda: "12.9"
+    torch: "2.11.0"
+    torchvision: "0.26.0"
+    cuda: "12.6"
     pytorch3d: "0.7.9"
     os: windows-2022
     arch: win_amd64
     msvc_toolset: ""
     cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
 
-  - name: py312-torch280-cu129-win
+  - name: py312-torch2110-cu126-win
     python: "3.12"
-    torch: "2.8.0"
-    torchvision: "0.23.0"
-    cuda: "12.9"
+    torch: "2.11.0"
+    torchvision: "0.26.0"
+    cuda: "12.6"
     pytorch3d: "0.7.9"
     os: windows-2022
     arch: win_amd64
     msvc_toolset: ""
     cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
 
-  - name: py313-torch280-cu129-win
+  - name: py313-torch2110-cu126-win
     python: "3.13"
-    torch: "2.8.0"
-    torchvision: "0.23.0"
-    cuda: "12.9"
+    torch: "2.11.0"
+    torchvision: "0.26.0"
+    cuda: "12.6"
     pytorch3d: "0.7.9"
     os: windows-2022
     arch: win_amd64
     msvc_toolset: ""
     cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
 
-  # --- torch (latest) + CUDA 13.2 ----------------------------------------
-  # PLACEHOLDER: torch 2.12.0 paired with cu132. Verify against
-  # download.pytorch.org/whl/cu132/ — bump if upstream ships a newer
-  # stable for cu132.
-  - name: py310-torch2120-cu132-win
+  # --- torch 2.11.0 + CUDA 12.8 ------------------------------------------
+  - name: py310-torch2110-cu128-win
+    python: "3.10"
+    torch: "2.11.0"
+    torchvision: "0.26.0"
+    cuda: "12.8"
+    pytorch3d: "0.7.9"
+    os: windows-2022
+    arch: win_amd64
+    msvc_toolset: ""
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
+
+  - name: py311-torch2110-cu128-win
+    python: "3.11"
+    torch: "2.11.0"
+    torchvision: "0.26.0"
+    cuda: "12.8"
+    pytorch3d: "0.7.9"
+    os: windows-2022
+    arch: win_amd64
+    msvc_toolset: ""
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
+
+  - name: py312-torch2110-cu128-win
+    python: "3.12"
+    torch: "2.11.0"
+    torchvision: "0.26.0"
+    cuda: "12.8"
+    pytorch3d: "0.7.9"
+    os: windows-2022
+    arch: win_amd64
+    msvc_toolset: ""
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
+
+  - name: py313-torch2110-cu128-win
+    python: "3.13"
+    torch: "2.11.0"
+    torchvision: "0.26.0"
+    cuda: "12.8"
+    pytorch3d: "0.7.9"
+    os: windows-2022
+    arch: win_amd64
+    msvc_toolset: ""
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
+
+  # --- torch 2.12.0 + CUDA 12.6 (no cu128 published for 2.12 on Windows) -
+  - name: py310-torch2120-cu126-win
     python: "3.10"
     torch: "2.12.0"
     torchvision: "0.27.0"
-    cuda: "13.2"
+    cuda: "12.6"
     pytorch3d: "0.7.9"
     os: windows-2022
     arch: win_amd64
     msvc_toolset: ""
-    cuda_arch_list: "7.5;8.0;8.6;8.9;9.0"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
 
-  - name: py311-torch2120-cu132-win
+  - name: py311-torch2120-cu126-win
     python: "3.11"
     torch: "2.12.0"
     torchvision: "0.27.0"
-    cuda: "13.2"
+    cuda: "12.6"
     pytorch3d: "0.7.9"
     os: windows-2022
     arch: win_amd64
     msvc_toolset: ""
-    cuda_arch_list: "7.5;8.0;8.6;8.9;9.0"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
 
-  - name: py312-torch2120-cu132-win
+  - name: py312-torch2120-cu126-win
     python: "3.12"
     torch: "2.12.0"
     torchvision: "0.27.0"
-    cuda: "13.2"
+    cuda: "12.6"
     pytorch3d: "0.7.9"
     os: windows-2022
     arch: win_amd64
     msvc_toolset: ""
-    cuda_arch_list: "7.5;8.0;8.6;8.9;9.0"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
 
-  - name: py313-torch2120-cu132-win
+  - name: py313-torch2120-cu126-win
     python: "3.13"
     torch: "2.12.0"
     torchvision: "0.27.0"
-    cuda: "13.2"
+    cuda: "12.6"
     pytorch3d: "0.7.9"
     os: windows-2022
     arch: win_amd64
     msvc_toolset: ""
-    cuda_arch_list: "7.5;8.0;8.6;8.9;9.0"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
