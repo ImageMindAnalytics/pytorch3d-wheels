@@ -109,6 +109,17 @@ def main():
         if not args.cuda_arch_list:
             sys.exit("--cuda-arch-list is required when --cuda != cpu")
         env["TORCH_CUDA_ARCH_LIST"] = args.cuda_arch_list
+
+        # CUDA 13.x's bundled CCCL headers #error out under MSVC's
+        # traditional preprocessor. NVCC_PREPEND_FLAGS is read by
+        # nvcc itself and prepended to every invocation, which avoids
+        # patching pytorch3d's setup.py.
+        cuda_major = int(args.cuda.split(".")[0])
+        if sys.platform == "win32" and cuda_major >= 13:
+            existing = env.get("NVCC_PREPEND_FLAGS", "")
+            env["NVCC_PREPEND_FLAGS"] = (
+                f"{existing} -Xcompiler /Zc:preprocessor"
+            ).strip()
     else:
         env["FORCE_CUDA"] = "0"
         for v in ("CUDA_HOME", "CUDA_PATH"):
