@@ -1,0 +1,25 @@
+# Build outputs
+wheels/
+wheels-repaired/
+artifacts/
+site/
+build/
+dist/
+*.whl
+*.egg-info/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# pytorch3d source checkout (when building locally)
+pytorch3d-src/
+
+# Editors
+.idea/
+.vscode/
+*.swp
+.DS_Store

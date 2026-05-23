@@ -1,0 +1,157 @@
+name: Build macOS wheels
+
+# macOS arm64 (Apple Silicon) wheels. CPU-only — pytorch3d's CUDA
+# kernels don't apply, and MPS isn't wired through its custom ops.
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish index to gh-pages after build"
+        type: boolean
+        default: true
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  load-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      builds: ${{ steps.load.outputs.builds }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: load
+        shell: bash
+        run: |
+          python3 -m pip install pyyaml --quiet
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, yaml
+          m = yaml.safe_load(open("matrix-macos.yml"))
+          print("builds=" + json.dumps(m["builds"]))
+          PY
+
+  build:
+    needs: load-matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        build: ${{ fromJson(needs.load-matrix.outputs.builds) }}
+    runs-on: ${{ matrix.build.os }}
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.build.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.build.python }}
+
+      - name: Checkout pytorch3d ${{ matrix.build.pytorch3d }}
+        uses: actions/checkout@v4
+        with:
+          repository: facebookresearch/pytorch3d
+          ref: v${{ matrix.build.pytorch3d }}
+          path: pytorch3d-src
+
+      - name: Show compiler
+        run: |
+          clang --version
+          which clang
+
+      - name: Build wheel
+        env:
+          MACOSX_DEPLOYMENT_TARGET: ${{ matrix.build.macosx_deployment_target }}
+        run: |
+          python -m pip install --upgrade pip pyyaml
+          python scripts/build_one.py \
+            --python "${{ matrix.build.python }}" \
+            --torch "${{ matrix.build.torch }}" \
+            --torchvision "${{ matrix.build.torchvision }}" \
+            --cuda "${{ matrix.build.cuda }}" \
+            --pytorch3d "${{ matrix.build.pytorch3d }}" \
+            --cuda-arch-list "" \
+            --src pytorch3d-src \
+            --out wheels
+
+      - name: Smoke test (import)
+        run: |
+          for f in wheels/pytorch3d-*.whl; do python -m pip install "$f"; done
+          python -c "import pytorch3d; print('pytorch3d', pytorch3d.__version__)"
+          python -c "import pytorch3d.ops; print('ops loaded')"
+
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-${{ matrix.build.name }}
+          path: wheels/*.whl
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    needs: build
+    if: ${{ github.event_name == 'push' || inputs.publish }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: gh-pages-deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download this run's wheel artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: wheel-*
+          merge-multiple: true
+
+      - name: Fetch existing wheels from gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: existing-pages
+        continue-on-error: true
+
+      - name: Merge new + existing wheels
+        run: |
+          mkdir -p wheels
+          find artifacts -name '*.whl' -exec cp -f {} wheels/ \;
+          if [ -d existing-pages/simple/pytorch3d ]; then
+            for whl in existing-pages/simple/pytorch3d/*.whl; do
+              [ -e "$whl" ] || continue
+              name=$(basename "$whl")
+              if [ ! -f "wheels/$name" ]; then
+                cp "$whl" "wheels/$name"
+              fi
+            done
+          fi
+          ls -la wheels/
+
+      - name: Build PEP 503 index
+        run: |
+          python3 scripts/make_index.py --wheels wheels --out site/simple
+
+      - name: Add landing page
+        run: |
+          mkdir -p site
+          cat > site/index.html <<'EOF'
+          <!doctype html>
+          <html><head><meta charset="utf-8">
+          <title>pytorch3d-wheels</title></head>
+          <body>
+            <h1>pytorch3d-wheels</h1>
+            <p>Prebuilt PyTorch3D wheels for Windows, Linux, and macOS arm64.
+               This is a PEP 503 simple index — see <a href="simple/">simple/</a>.</p>
+            <p>Install with:
+              <pre>pip install pytorch3d --extra-index-url https://ImageMindAnalytics.github.io/pytorch3d-wheels/simple/</pre>
+            </p>
+          </body></html>
+          EOF
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: site

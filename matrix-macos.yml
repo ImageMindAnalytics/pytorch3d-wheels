@@ -1,0 +1,52 @@
+# Build matrix for macOS arm64 (Apple Silicon) pytorch3d wheels.
+# Each row produces exactly one wheel — all CPU-only.
+#
+# pytorch3d's CUDA kernels only matter on NVIDIA GPUs. MPS is not
+# wired through its custom ops, so a CPU-only wheel is the right shape
+# for macOS today.
+#
+# macOS-specific knob:
+#   macosx_deployment_target - sets MACOSX_DEPLOYMENT_TARGET. 11.0 is
+#                              the floor for arm64 wheels and what
+#                              official PyTorch arm64 wheels target.
+
+builds:
+  - name: py310-torch280-cpu-macos-arm64
+    python: "3.10"
+    torch: "2.8.0"
+    torchvision: "0.23.0"
+    cuda: "cpu"
+    pytorch3d: "0.7.9"
+    os: macos-14
+    arch: macosx_11_0_arm64
+    macosx_deployment_target: "11.0"
+
+  - name: py311-torch280-cpu-macos-arm64
+    python: "3.11"
+    torch: "2.8.0"
+    torchvision: "0.23.0"
+    cuda: "cpu"
+    pytorch3d: "0.7.9"
+    os: macos-14
+    arch: macosx_11_0_arm64
+    macosx_deployment_target: "11.0"
+
+  - name: py312-torch280-cpu-macos-arm64
+    python: "3.12"
+    torch: "2.8.0"
+    torchvision: "0.23.0"
+    cuda: "cpu"
+    pytorch3d: "0.7.9"
+    os: macos-14
+    arch: macosx_11_0_arm64
+    macosx_deployment_target: "11.0"
+
+  - name: py313-torch280-cpu-macos-arm64
+    python: "3.13"
+    torch: "2.8.0"
+    torchvision: "0.23.0"
+    cuda: "cpu"
+    pytorch3d: "0.7.9"
+    os: macos-14
+    arch: macosx_11_0_arm64
+    macosx_deployment_target: "11.0"
