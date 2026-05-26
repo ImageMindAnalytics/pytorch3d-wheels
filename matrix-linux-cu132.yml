@@ -1,19 +1,15 @@
 # EXPERIMENTAL: Linux + CUDA 13.2 builds.
 #
-# Currently broken: pulsar's `_C.so` link step fails with
-# "hidden symbol ... isn't defined" errors — the `<true>`/DYN template
-# instantiations of pulsar::Renderer::{calc_signature,calc_gradients,
-# fill_bg,render,...} are declared with hidden visibility but never
-# emitted as defined symbols under CUDA 13's compilation model. Same
-# failure mode as Windows cu132.
+# CUDA 13 flipped the default for -static-global-template-stub to true,
+# which gave pulsar's explicit template instantiations hidden visibility
+# without emitting their definitions ("hidden symbol ... isn't defined"
+# at link). build_one.py now passes -static-global-template-stub=false
+# via NVCC_PREPEND_FLAGS when CUDA major >= 13. See:
+#   https://developer.nvidia.com/blog/cuda-c-compiler-updates-impacting-elf-visibility-and-linkage/
 #
-# Lives in a separate file so iterating on this doesn't disturb the
-# stable cu129 wheels in matrix-linux.yml. The matching workflow
-# (build-linux-cu132.yml) defaults to publish=false.
-#
-# Resolution path: wait for pytorch3d upstream to fix pulsar for
-# CUDA 13, OR patch pytorch3d setup.py to disable pulsar entirely and
-# ship a degraded wheel.
+# Lives in a separate file (and the workflow defaults to publish=false)
+# until a green run confirms the fix works end-to-end. Promote rows to
+# matrix-linux.yml after verification.
 
 builds:
   - name: py310-torch2120-cu132-linux

@@ -65,18 +65,23 @@ torch 2.12 here is cu126-only.
 
 PyTorch3D version: **0.7.9** (the latest upstream release).
 
-### CUDA 13.x — currently blocked upstream
+### CUDA 13.x — experimental (fix being verified)
 
-CUDA 13.x wheels (torch 2.12 + cu132) are **not shipped** while
-pytorch3d's pulsar backend has a linker incompatibility with CUDA 13's
-compilation model: pulsar's explicit template instantiations are
-declared with hidden visibility but never emitted as defined symbols,
-so `pytorch3d._C` fails to link. The matrix and workflows for cu132
-live in `matrix-{windows,linux}-cu132.yml` and
-`.github/workflows/build-{windows,linux}-cu132.yml` so we can pick
-them back up once a fix is available (either upstream, or by patching
-pytorch3d to disable pulsar). These workflows default to
-`publish: false`.
+CUDA 13.x wheels (torch 2.12 + cu132) are kept in a separate matrix
+and workflow while a fix is being verified. CUDA 13 changed the
+default for `-static-global-template-stub` to `true`, which gives
+pulsar's explicit template instantiations hidden visibility without
+emitting their definitions — causing `_C.so` to fail at link with
+"hidden symbol ... isn't defined". `build_one.py` now passes
+`-static-global-template-stub=false` via `NVCC_PREPEND_FLAGS` when
+CUDA major ≥ 13 (and `/Zc:preprocessor` on Windows for CCCL). See
+[NVIDIA's writeup](https://developer.nvidia.com/blog/cuda-c-compiler-updates-impacting-elf-visibility-and-linkage/).
+
+The matrix and workflows live in `matrix-{windows,linux}-cu132.yml`
+and `.github/workflows/build-{windows,linux}-cu132.yml`. These
+workflows default to `publish: false` so a failed run doesn't touch
+`gh-pages`. Once a green end-to-end run is confirmed, rows will move
+into the stable matrices.
 
 ## Scope
 

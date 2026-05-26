@@ -82,6 +82,21 @@ standard PyTorch requests. Ensure `ilammy/msvc-dev-cmd` has no
 `toolset:` pin so the runner uses default v143 (VS 2022). This is the
 default for `msvc_toolset: ""` in the matrix.
 
+**CUDA 13.x link step fails with `hidden symbol ... isn't defined`
+(pulsar's `Renderer::calc_signature<true>` etc.).** CUDA 13 changed
+the default for `-static-global-template-stub` to `true`. `build_one.py`
+handles this by setting
+`NVCC_PREPEND_FLAGS=-static-global-template-stub=false` when CUDA
+major ≥ 13 — if you're seeing this anyway, confirm `NVCC_PREPEND_FLAGS`
+isn't being clobbered elsewhere in the workflow. Reference:
+<https://developer.nvidia.com/blog/cuda-c-compiler-updates-impacting-elf-visibility-and-linkage/>.
+
+**Windows + CUDA 13 fails with `C1189: MSVC/cl.exe with traditional
+preprocessor is used`.** CCCL headers shipped with CUDA 13 require
+MSVC's standard-conforming preprocessor. `build_one.py` adds
+`-Xcompiler /Zc:preprocessor` to `NVCC_PREPEND_FLAGS` for Windows +
+CUDA ≥ 13 automatically.
+
 **Build fails during nvcc compilation with OOM.** Reduce `MAX_JOBS` in
 `scripts/build_one.py` from 4 to 2.
 
