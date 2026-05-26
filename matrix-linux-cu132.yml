@@ -1,15 +1,13 @@
-# EXPERIMENTAL: Linux + CUDA 13.2 builds.
+# Linux + CUDA 13.2 builds.
 #
-# CUDA 13 flipped the default for -static-global-template-stub to true,
-# which gave pulsar's explicit template instantiations hidden visibility
-# without emitting their definitions ("hidden symbol ... isn't defined"
-# at link). build_one.py now passes -static-global-template-stub=false
-# via NVCC_PREPEND_FLAGS when CUDA major >= 13. See:
+# Builds successfully with build_one.py's
+# -static-global-template-stub=false, set via NVCC_PREPEND_FLAGS when
+# CUDA major >= 13. See:
 #   https://developer.nvidia.com/blog/cuda-c-compiler-updates-impacting-elf-visibility-and-linkage/
 #
-# Lives in a separate file (and the workflow defaults to publish=false)
-# until a green run confirms the fix works end-to-end. Promote rows to
-# matrix-linux.yml after verification.
+# Kept in a separate matrix/workflow for now so the cu132 build matrix
+# can be iterated on independently. Once stable, these rows can be
+# merged into matrix-linux.yml.
 
 builds:
   - name: py310-torch2120-cu132-linux

@@ -1,11 +1,10 @@
-name: Build Windows wheels (cu132 experimental)
+name: Build Windows wheels (cu132)
 
-# Experimental workflow for torch 2.12 + CUDA 13.2 on Windows.
-# Currently broken — pulsar fails to link under CUDA 13 (hidden symbol
-# template instantiations). Kept around so iterating on a fix doesn't
-# disturb the stable cu129 builds.
-#
-# Publish defaults to false because the build is expected to fail.
+# torch 2.12 + CUDA 13.2 on Windows. The
+# -static-global-template-stub=false + /Zc:preprocessor fix in
+# build_one.py makes this build. Kept in a separate workflow for now so
+# the cu132 matrix can be iterated on independently of the cu126/cu128
+# stable matrix; can be folded into build-windows.yml when ready.
 
 on:
   workflow_dispatch:
@@ -13,7 +12,7 @@ on:
       publish:
         description: "Publish index to gh-pages after build"
         type: boolean
-        default: false
+        default: true
 
 jobs:
   load-matrix:
