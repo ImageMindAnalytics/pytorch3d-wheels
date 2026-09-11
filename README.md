@@ -37,6 +37,10 @@ pip install "pytorch3d==0.7.9+pt2110cu128" \
 pip install "pytorch3d==0.7.9+pt2120cu126" \
   --extra-index-url https://ImageMindAnalytics.github.io/pytorch3d-wheels/simple/
 
+# torch 2.14.0 + CUDA 12.6 (Windows / Linux, Python 3.14)
+pip install "pytorch3d==0.7.9+pt2140cu126" \
+  --extra-index-url https://ImageMindAnalytics.github.io/pytorch3d-wheels/simple/
+
 # torch 2.8.0 + CPU only (macOS arm64)
 pip install "pytorch3d==0.7.9+pt280cpu" \
   --extra-index-url https://ImageMindAnalytics.github.io/pytorch3d-wheels/simple/
@@ -54,12 +58,16 @@ requests to add new combinations are evaluated based on CI cost and demand.
 |--------------------|------------------------|--------|------------|
 | Windows x86_64     | 3.10, 3.11, 3.12, 3.13 | 2.11.0 | 12.6, 12.8 |
 | Windows x86_64     | 3.10, 3.11, 3.12, 3.13 | 2.12.0 | 12.6       |
+| Windows x86_64     | 3.14                   | 2.14.0 | 12.6       |
 | Linux x86_64 (\*)  | 3.10, 3.11, 3.12, 3.13 | 2.11.0 | 12.6, 12.8 |
 | Linux x86_64 (\*)  | 3.10, 3.11, 3.12, 3.13 | 2.12.0 | 12.6       |
+| Linux x86_64 (\*)  | 3.14                   | 2.14.0 | 12.6       |
 | macOS arm64        | 3.10, 3.11, 3.12, 3.13 | 2.8.0  | CPU        |
 
 torch 2.12 has no cu128 builds on PyPI's torch index — that's why
-torch 2.12 here is cu126-only.
+torch 2.12 here is cu126-only. Same story for torch 2.14: upstream
+dropped cu128 in favor of cu126/cu130/cu132, so torch 2.14 here is
+cu126 (stable) plus cu132 (experimental — see below).
 
 (\*) Linux wheels are `manylinux_2_28_x86_64`.
 
@@ -67,8 +75,8 @@ PyTorch3D version: **0.7.9** (the latest upstream release).
 
 ### CUDA 13.x — experimental (fix being verified)
 
-CUDA 13.x wheels (torch 2.12 + cu132) are kept in a separate matrix
-and workflow while a fix is being verified. CUDA 13 changed the
+CUDA 13.x wheels (torch 2.12 + cu132, torch 2.14 + cu132) are kept in
+a separate matrix and workflow while a fix is being verified. CUDA 13 changed the
 default for `-static-global-template-stub` to `true`, which gives
 pulsar's explicit template instantiations hidden visibility without
 emitting their definitions — causing `_C.so` to fail at link with
