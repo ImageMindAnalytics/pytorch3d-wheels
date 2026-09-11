@@ -9,6 +9,10 @@
 # torch 2.12 + cu128 is not built because upstream doesn't publish a
 # torch 2.12.0+cu128 wheel — only cu126 (and cu13.x).
 #
+# torch 2.14 + cu128 is likewise not built: release 2.14 dropped cu128
+# in favor of cu126/cu130/cu132, so only the cu126 row is added here
+# (cu132 row lives in matrix-linux-cu132.yml).
+#
 # Linux wheels MUST be manylinux-compatible to be installable across
 # distros — so the build runs inside a manylinux container with CUDA
 # pre-installed (see .github/workflows/build-linux.yml).
@@ -142,6 +146,18 @@ builds:
     python: "3.13"
     torch: "2.12.0"
     torchvision: "0.27.0"
+    cuda: "12.6"
+    pytorch3d: "0.7.9"
+    os: ubuntu-22.04
+    arch: manylinux_2_28_x86_64
+    container: "pytorch/manylinux2_28-builder:cuda12.6"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
+
+  # --- torch 2.14.0 + CUDA 12.6 (cu128 not published for torch 2.14) -----
+  - name: py314-torch2140-cu126-linux
+    python: "3.14"
+    torch: "2.14.0"
+    torchvision: "0.29.0"
     cuda: "12.6"
     pytorch3d: "0.7.9"
     os: ubuntu-22.04
