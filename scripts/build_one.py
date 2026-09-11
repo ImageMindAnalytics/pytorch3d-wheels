@@ -97,6 +97,23 @@ def main():
     init_py.write_text(new_text, encoding="utf-8")
     print(f"Patched __version__ -> {args.pytorch3d}+{local_id}")
 
+    # torch 2.14 raised ATen's minimum required C++ standard to C++20
+    # (see ATen/ATen.h: "#error C++20 or later compatible compiler is
+    # required to use ATen."), but pytorch3d 0.7.9's setup.py hardcodes
+    # -std=c++17 for both the host compiler and nvcc. Patch it up to
+    # c++20 so the build doesn't fail with that #error. This can't be
+    # done via NVCC_PREPEND_FLAGS because setup.py's own -std=c++17
+    # comes later on the command line and wins.
+    torch_major, torch_minor = (int(p) for p in args.torch.split(".")[:2])
+    if (torch_major, torch_minor) >= (2, 14):
+        setup_py = src / "setup.py"
+        text = setup_py.read_text(encoding="utf-8")
+        new_text, n = (text.replace("-std=c++17", "-std=c++20"), text.count("-std=c++17"))
+        if n == 0:
+            sys.exit(f"Expected to find -std=c++17 in {setup_py} to bump to c++20")
+        setup_py.write_text(new_text, encoding="utf-8")
+        print(f"Patched {n} occurrence(s) of -std=c++17 -> -std=c++20 in setup.py")
+
     env = os.environ.copy()
     env["DISTUTILS_USE_SDK"] = "1"
     env["PYTORCH3D_NO_NINJA"] = "0"
