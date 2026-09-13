@@ -75,7 +75,8 @@ PyTorch3D version: **0.7.9** (the latest upstream release).
 
 ### CUDA 13.x — experimental (fix being verified)
 
-CUDA 13.x wheels (torch 2.12 + cu132, torch 2.14 + cu132) are kept in
+CUDA 13.x wheels (torch 2.12 + cu132 for Python 3.10-3.13, torch 2.14 +
+cu132 for Python 3.12 and 3.14) are kept in
 a separate matrix and workflow while a fix is being verified. CUDA 13 changed the
 default for `-static-global-template-stub` to `true`, which gives
 pulsar's explicit template instantiations hidden visibility without
