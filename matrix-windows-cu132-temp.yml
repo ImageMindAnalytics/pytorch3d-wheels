@@ -1,0 +1,16 @@
+# TEMP: single-row matrix to validate py312-torch2140-cu132-win in
+# isolation before folding it into matrix-windows-cu132.yml. Delete
+# this file (and the matching build-windows-cu132-temp.yml workflow)
+# once the row is verified and merged.
+
+builds:
+  - name: py312-torch2140-cu132-win
+    python: "3.12"
+    torch: "2.14.0"
+    torchvision: "0.29.0"
+    cuda: "13.2"
+    pytorch3d: "0.7.9"
+    os: windows-2022
+    arch: win_amd64
+    msvc_toolset: ""
+    cuda_arch_list: "7.5;8.0;8.6;8.9;9.0"

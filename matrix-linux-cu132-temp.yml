@@ -1,0 +1,16 @@
+# TEMP: single-row matrix to validate py312-torch2140-cu132-linux in
+# isolation before folding it into matrix-linux-cu132.yml. Delete this
+# file (and the matching build-linux-cu132-temp.yml workflow) once the
+# row is verified and merged.
+
+builds:
+  - name: py312-torch2140-cu132-linux
+    python: "3.12"
+    torch: "2.14.0"
+    torchvision: "0.29.0"
+    cuda: "13.2"
+    pytorch3d: "0.7.9"
+    os: ubuntu-22.04
+    arch: manylinux_2_28_x86_64
+    container: "pytorch/manylinux2_28-builder:cuda13.2"
+    cuda_arch_list: "7.5;8.0;8.6;8.9;9.0"
