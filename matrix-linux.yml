@@ -73,7 +73,7 @@ builds:
     os: ubuntu-22.04
     arch: manylinux_2_28_x86_64
     container: "pytorch/manylinux2_28-builder:cuda12.8"
-    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0;12.0"
 
   - name: py311-torch2110-cu128-linux
     python: "3.11"
@@ -84,7 +84,7 @@ builds:
     os: ubuntu-22.04
     arch: manylinux_2_28_x86_64
     container: "pytorch/manylinux2_28-builder:cuda12.8"
-    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0;12.0"
 
   - name: py312-torch2110-cu128-linux
     python: "3.12"
@@ -95,7 +95,7 @@ builds:
     os: ubuntu-22.04
     arch: manylinux_2_28_x86_64
     container: "pytorch/manylinux2_28-builder:cuda12.8"
-    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0;12.0"
 
   - name: py313-torch2110-cu128-linux
     python: "3.13"
@@ -106,7 +106,7 @@ builds:
     os: ubuntu-22.04
     arch: manylinux_2_28_x86_64
     container: "pytorch/manylinux2_28-builder:cuda12.8"
-    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0;12.0"
 
   # --- torch 2.12.0 + CUDA 12.6 (no cu128 published for 2.12) -----------
   - name: py310-torch2120-cu126-linux

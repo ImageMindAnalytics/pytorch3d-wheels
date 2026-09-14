@@ -73,6 +73,13 @@ cu126 (stable) plus cu132 (experimental — see below).
 
 PyTorch3D version: **0.7.9** (the latest upstream release).
 
+### GPU architectures
+
+CUDA wheels are compiled for `sm_70` (or `sm_75` on CUDA 13.x) through
+`sm_90`. The cu128 rows (torch 2.11.0) and all cu132 rows additionally
+include `sm_120` (Blackwell / RTX 50-series, B100/B200) — CUDA 12.6
+predates Blackwell support in nvcc, so the cu126 rows do not.
+
 ### CUDA 13.x — experimental (fix being verified)
 
 CUDA 13.x wheels (torch 2.12 + cu132 for Python 3.10-3.13, torch 2.14 +

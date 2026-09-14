@@ -74,7 +74,7 @@ builds:
     os: windows-2022
     arch: win_amd64
     msvc_toolset: ""
-    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0;12.0"
 
   - name: py311-torch2110-cu128-win
     python: "3.11"
@@ -85,7 +85,7 @@ builds:
     os: windows-2022
     arch: win_amd64
     msvc_toolset: ""
-    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0;12.0"
 
   - name: py312-torch2110-cu128-win
     python: "3.12"
@@ -96,7 +96,7 @@ builds:
     os: windows-2022
     arch: win_amd64
     msvc_toolset: ""
-    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0;12.0"
 
   - name: py313-torch2110-cu128-win
     python: "3.13"
@@ -107,7 +107,7 @@ builds:
     os: windows-2022
     arch: win_amd64
     msvc_toolset: ""
-    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0"
+    cuda_arch_list: "7.0;7.5;8.0;8.6;8.9;9.0;12.0"
 
   # --- torch 2.12.0 + CUDA 12.6 (no cu128 published for 2.12 on Windows) -
   - name: py310-torch2120-cu126-win
